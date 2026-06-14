@@ -1,0 +1,51 @@
+Python:
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+Virtual environment directories:
+venv/
+.venv/
+env/
+
+Distribution directories:
+*.egg-info/
+.eggs/
+dist/
+build/
+
+IDE and editor files:
+.vscode/
+!.vscode/extensions.json
+
+windows system files:
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+Terraform files:
+.terraform/
+
+*.tfstate
+*.tfstate.*
+
+*.tfvars
+*.tfvars.json
+
+crash.log
+crash.*.log
+
+*.tfplan
+
+Kubernetes config files:
+.kube/
+kubeconfig
+kubeconfig.*
+
+Docker files:
+docker-compose.override.yml
+*.log
+
+Helm chart packages:
+charts/*/*.tgz
