@@ -28,37 +28,36 @@ In its MVP phase, the project utilizes a local multi-node Kubernetes cluster man
 - `helm` v3 installed 
 
 
-```
+
 `Step 1:` Build the Application Image:
 
 ```bash
-docker build -t eks-gitops-observer-app:local .
+docker build -t eks-gitops-observer-app:local .```
 
 `Step 2:` Spin Up the Multi-Node Kind Cluster:
 
 ```bash
-kind create cluster --config kind-config.yaml
+kind create cluster --config kind-config.yaml```
 
 `Step 3:` Sideload the Image into the Cluster Nodes:
 
 ```bash
-kind load docker-image eks-gitops-observer-app:local --name gitops-observer-cluster
+kind load docker-image eks-gitops-observer-app:local --name gitops-observer-cluster```
 
 `Step 4:` Deploy Using the Helm Chart:
 
 ```bash
-helm install observer-release charts/observer-app/
+helm install observer-release charts/observer-app/```
 
 `Step 5:` Verify the Health Status:
 Check the status of your Pods. They will transition to 1/1 READY as soon as the Kubernetes readiness probes pass successfully:
 
 ```bash
-kubectl get pods -o wide
+kubectl get pods -o wide```
 
 The application endpoints will be exposed locally via the Kind Ingress mapping:
 http://localhost/health -> Liveness Probe (PID 1 Process Health)
 http://localhost/ready -> Readiness Probe (Dependency & Ingress Readiness)
-```
 
 Best Practices Implemented:
 1. Multi-Stage Docker Builds: Decouples the build environment from the final runtime image. This ensures a minimal attack surface, eliminates build-time clutter, and optimizes pull speeds in high-availability environments.
