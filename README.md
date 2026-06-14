@@ -28,6 +28,7 @@ In its MVP phase, the project utilizes a local multi-node Kubernetes cluster man
 - `helm` v3 installed 
 
 
+```
 `Step 1:` Build the Application Image:
 
 ```bash
@@ -57,3 +58,11 @@ kubectl get pods -o wide
 The application endpoints will be exposed locally via the Kind Ingress mapping:
 http://localhost/health -> Liveness Probe (PID 1 Process Health)
 http://localhost/ready -> Readiness Probe (Dependency & Ingress Readiness)
+```
+
+Best Practices Implemented:
+1. Multi-Stage Docker Builds: Decouples the build environment from the final runtime image. This ensures a minimal attack surface, eliminates build-time clutter, and optimizes pull speeds in high-availability environments.
+
+2. Log Noise Reduction (Log Cleaning): The FastAPI gateway intercepts browser-automatic requests for /favicon.ico and explicitly returns a 204 No Content status (with include_in_schema=False). This mitigates 404 Not Found log pollution, preventing false-positive alerts in automated log parsers and SIEM systems.
+
+3. Decoupled Health Probes: By separating Liveness (/health) and Readiness (/ready) logic, the architecture prevents dangerous cascading restarts (CrashLoopBackOff chains) if downstream dependencies or third-party APIs experience transient latency.
