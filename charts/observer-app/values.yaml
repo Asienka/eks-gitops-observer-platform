@@ -1,0 +1,26 @@
+replicaCount: 2
+
+image:
+  repository: eks-gitops-observer-app
+  tag: local
+  pullPolicy: Never
+
+service:
+  type: NodePort
+  port: 80
+  targetPort: 8000
+  nodePort: 30080
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+probes:
+  livenessPath: /health
+  readinessPath: /ready
+  initialDelaySeconds: 5
+  periodSeconds: 10
