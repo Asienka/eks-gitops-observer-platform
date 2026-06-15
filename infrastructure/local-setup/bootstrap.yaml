@@ -1,0 +1,44 @@
+- name: Bootstrap Local Environment & Create Kind Cluster
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Install engineering CLI tools via WinGet
+      ansible.windows.win_shell: "winget install --id {{ item }} --accept-source-agreements --accept-package-agreements"
+      loop:
+        - Kubernetes.kubectl
+        - Kubernetes.Kind
+        - Kubernetes.Helm
+        - HashiCorp.Terraform
+        - Amazon.AWSCLI
+        - Schniz.Stern
+      ignore_errors: true 
+
+    - name: Verify Docker is running
+      ansible.windows.win_shell: "docker info"
+      register: docker_check
+      failed_when: "'Server Version' not in docker_check.stdout"
+      changed_when: false
+
+    - name: Create Kind Multi-Node Cluster
+      ansible.windows.win_shell: "kind create cluster --name gitops-observer-cluster --config - <<EOF
+        kind: Cluster
+        apiVersion: kind.x-k8s.io/v1alpha4
+        nodes:
+        - role: control-plane
+        - role: worker
+        - role: worker
+        EOF"
+      register: kind_creation
+      failed_when: "'Cluster creation complete' not in kind_creation.stdout and 'already exists' not in kind_creation.stdout"
+      changed_when: "'Cluster creation complete' in kind_creation.stdout"
+
+    - name: Deploy ArgoCD into the cluster
+      ansible.windows.win_shell: |
+        kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+        kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+      when: kind_creation.changed or 'already exists' in kind_creation.stdout
+
+    - name: Success Message
+      ansible.builtin.debug:
+        msg: "Environment is READY! Run 'kubectl get nodes' and deploy your Root Application."
