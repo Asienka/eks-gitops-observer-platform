@@ -20,44 +20,12 @@ In its MVP phase, the project utilizes a local multi-node Kubernetes cluster man
 
 ---
 
-##  Local Quickstart Guide
+## Quick Start (Local Bootstrap via Ansible)
 
-### Prerequisites
-- `Docker Desktop` running in the background
-- `kind` and `kubectl` CLI tools installed
-- `helm` v3 installed 
+To automate the setup of your local workstation, install all required CLI tools, and spin up the multi-node Kind cluster with ArgoCD pre-installed, simply run the following command from the repository root:
 
-
-
-`Step 1:` Build the Application Image:
-
-docker build -t eks-gitops-observer-app:local .
-
-`Step 2:` Spin Up the Multi-Node Kind Cluster:
-
-bash
-kind create cluster --config kind-config.yaml
-
-`Step 3:` Sideload the Image into the Cluster Nodes:
-
-bash
-kind load docker-image eks-gitops-observer-app:local --name gitops-observer-cluster
-
-`Step 4:` Deploy Using the Helm Chart:
-
-bash
-helm install observer-release charts/observer-app/
-
-`Step 5:` Verify the Health Status:
-Check the status of your Pods. They will transition to 1/1 READY as soon as the Kubernetes readiness probes pass successfully:
-
-bash
-kubectl get pods -o wide
-
-
-The application endpoints will be exposed locally via the Kind Ingress mapping:
-http://localhost/health -> Liveness Probe (PID 1 Process Health)
-http://localhost/ready -> Readiness Probe (Dependency & Ingress Readiness)
+```bash
+ansible-playbook infrastructure/local-setup/bootstrap.yaml
 
 ---
 
