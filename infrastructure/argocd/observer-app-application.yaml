@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: root-platform
+  name: observer-app-platform
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: 'https://github.com/Asienka/eks-gitops-observer.git'
     targetRevision: main
-    path: infrastructure/argocd
+    path: infrastructure/charts/observer-app
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: argocd
+    namespace: default
   syncPolicy:
     automated:
       prune: true

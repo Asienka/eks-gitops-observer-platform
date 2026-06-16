@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring-platform
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/Asienka/eks-gitops-observer.git' 
+    targetRevision: main
+    path: infrastructure/charts/monitoring
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring 
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    createNamespace: true 
