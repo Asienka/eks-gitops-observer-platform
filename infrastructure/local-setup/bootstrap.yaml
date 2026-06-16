@@ -1,44 +1,111 @@
-- name: Bootstrap Local Environment & Create Kind Cluster
+---
+- name: Bootstrap Local Kubernetes Environment
   hosts: localhost
-  gather_facts: false
+  connection: local
+  gather_facts: true
+
+  vars_prompt:
+    - name: grafana_password
+      prompt: "Enter Grafana admin password"
+      private: true
+      confirm: true
+
+  vars:
+    argocd_version: "v2.13.3"
+    kind_config: "{{ playbook_dir }}/kind-config.yaml"
+    local_bin: "{{ ansible_env.HOME }}/.local/bin"
 
   tasks:
-    - name: Install engineering CLI tools via WinGet
-      ansible.windows.win_shell: "winget install --id {{ item }} --accept-source-agreements --accept-package-agreements"
-      loop:
-        - Kubernetes.kubectl
-        - Kubernetes.Kind
-        - Kubernetes.Helm
-        - HashiCorp.Terraform
-        - Amazon.AWSCLI
-        - Schniz.Stern
-      ignore_errors: true 
 
-    - name: Verify Docker is running
-      ansible.windows.win_shell: "docker info"
-      register: docker_check
-      failed_when: "'Server Version' not in docker_check.stdout"
-      changed_when: false
+    # ── Prerequisites ─────────────────────────────────────────────────────────
+    - name: Ensure ~/.local/bin exists
+      ansible.builtin.file:
+        path: "{{ local_bin }}"
+        state: directory
+        mode: '0755'
 
-    - name: Create Kind Multi-Node Cluster
-      ansible.windows.win_shell: "kind create cluster --name gitops-observer-cluster --config - <<EOF
-        kind: Cluster
-        apiVersion: kind.x-k8s.io/v1alpha4
-        nodes:
-        - role: control-plane
-        - role: worker
-        - role: worker
-        EOF"
-      register: kind_creation
-      failed_when: "'Cluster creation complete' not in kind_creation.stdout and 'already exists' not in kind_creation.stdout"
-      changed_when: "'Cluster creation complete' in kind_creation.stdout"
+    - name: Install kind
+      ansible.builtin.shell: |
+        curl -Lo {{ local_bin }}/kind \
+          https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
+        chmod +x {{ local_bin }}/kind
+      args:
+        executable: /bin/bash
+        creates: "{{ local_bin }}/kind"
 
-    - name: Deploy ArgoCD into the cluster
-      ansible.windows.win_shell: |
-        kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
-        kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-      when: kind_creation.changed or 'already exists' in kind_creation.stdout
+    - name: Install kubectl
+      ansible.builtin.shell: |
+        curl -Lo {{ local_bin }}/kubectl \
+          "https://dl.k8s.io/release/$(curl -sL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+        chmod +x {{ local_bin }}/kubectl
+      args:
+        executable: /bin/bash
+        creates: "{{ local_bin }}/kubectl"
 
-    - name: Success Message
-      ansible.builtin.debug:
-        msg: "Environment is READY! Run 'kubectl get nodes' and deploy your Root Application."
+    # ── Kind cluster ──────────────────────────────────────────────────────────
+    - name: Create Kind cluster
+      ansible.builtin.command: "{{ local_bin }}/kind create cluster --config {{ kind_config }}"
+      register: kind_result
+      failed_when:
+        - kind_result.rc != 0
+        - "'already exist' not in kind_result.stderr"
+      changed_when: "'already exist' not in kind_result.stderr"
+
+    # ── ArgoCD ────────────────────────────────────────────────────────────────
+    - name: Create namespace argocd
+      ansible.builtin.command: "{{ local_bin }}/kubectl create namespace argocd"
+      register: ns_argocd
+      failed_when:
+        - ns_argocd.rc != 0
+        - "'already exist' not in ns_argocd.stderr"
+      changed_when: "'already exist' not in ns_argocd.stderr"
+
+    - name: Install ArgoCD {{ argocd_version }}
+      ansible.builtin.command: >
+        {{ local_bin }}/kubectl apply -n argocd
+        -f https://raw.githubusercontent.com/argoproj/argo-cd/{{ argocd_version }}/manifests/install.yaml
+
+    - name: Wait for ArgoCD to be ready
+      ansible.builtin.command: >
+        {{ local_bin }}/kubectl wait deployment argocd-server
+        -n argocd
+        --for=condition=Available
+        --timeout=30s
+      register: argocd_ready
+      until: argocd_ready.rc == 0
+      retries: 10
+      delay: 15
+
+    # ── Grafana credentials ───────────────────────────────────────────────────
+    - name: Create namespace monitoring
+      ansible.builtin.command: "{{ local_bin }}/kubectl create namespace monitoring"
+      register: ns_monitoring
+      failed_when:
+        - ns_monitoring.rc != 0
+        - "'already exist' not in ns_monitoring.stderr"
+      changed_when: "'already exist' not in ns_monitoring.stderr"
+
+    - name: Write grafana secret manifest
+      ansible.builtin.copy:
+        content: |
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: grafana-admin-credentials
+            namespace: monitoring
+          type: Opaque
+          stringData:
+            admin-user: admin
+            admin-password: "{{ grafana_password }}"
+        dest: /tmp/grafana-secret.yaml
+        mode: '0600'
+      no_log: true
+
+    - name: Apply grafana secret
+      ansible.builtin.command: "{{ local_bin }}/kubectl apply -f /tmp/grafana-secret.yaml"
+      no_log: true
+
+    - name: Remove grafana secret temp file
+      ansible.builtin.file:
+        path: /tmp/grafana-secret.yaml
+        state: absent
