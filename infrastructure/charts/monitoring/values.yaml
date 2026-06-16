@@ -16,7 +16,6 @@ kube-prometheus-stack:
 
   grafana:
     enabled: true
-    adminPassword: "admin"
     
     persistence:
       enabled: false
