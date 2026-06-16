@@ -21,12 +21,16 @@ In its MVP phase, the project utilizes a local multi-node Kubernetes cluster man
 ---
 
 ## Quick Start (Local Bootstrap via Ansible)
+## Prerequisites
+- Docker
+- Ansible (`pip install ansible`)
 
+## Setup
 To automate the setup of your local workstation, install all required CLI tools, and spin up the multi-node Kind cluster with ArgoCD pre-installed, simply run the following command from the repository root:
 
 ```bash
 ansible-playbook infrastructure/local-setup/bootstrap.yaml
-
+```
 ---
 
 ## Best Practices Implemented:
