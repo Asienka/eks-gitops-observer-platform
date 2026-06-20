@@ -3,7 +3,7 @@ replicaCount: 2
 image:
   repository: eks-gitops-observer-app
   tag: local
-  pullPolicy: Never
+  pullPolicy: if-not-present
 
 service:
   type: NodePort
