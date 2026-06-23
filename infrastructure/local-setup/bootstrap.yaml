@@ -51,6 +51,15 @@
         - kind_result.rc != 0
         - "'already exist' not in kind_result.stderr"
       changed_when: "'already exist' not in kind_result.stderr"
+    
+    # ── Wait for Kubernetes API ───────────────────────────────────────────────
+    - name: Wait for Kubernetes API Server to be healthy and responsive
+      ansible.builtin.command: "{{ local_bin }}/kubectl cluster-info"
+      register: kube_cluster_info
+      until: kube_cluster_info.rc == 0
+      retries: 20
+      delay: 6
+      changed_when: false
 
     # ── ArgoCD ────────────────────────────────────────────────────────────────
     - name: Create namespace argocd
@@ -110,3 +119,15 @@
       ansible.builtin.file:
         path: /tmp/grafana-secret.yaml
         state: absent
+
+    - name: Deploy Root Application in ArgoCD
+      ansible.builtin.command: "{{ local_bin }}/kubectl apply -f {{ playbook_dir }}/../argocd/root-application.yaml" 
+      register: root_app_result
+
+    - name: Wait for Root Application to be registered
+      ansible.builtin.command: "{{ local_bin }}/kubectl get applications.argoproj.io -n argocd root-application"
+      register: root_app_check
+      until: root_app_check.rc == 0
+      retries: 5
+      delay: 5
+      changed_when: false
