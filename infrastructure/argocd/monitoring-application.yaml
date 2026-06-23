@@ -3,6 +3,7 @@ kind: Application
 metadata:
   name: monitoring-platform
   namespace: argocd
+  argocd.argoproj.io/sync-options: ServerSideApply=true
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
