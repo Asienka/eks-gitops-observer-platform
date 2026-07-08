@@ -12,11 +12,20 @@ In its MVP phase, the project utilizes a local multi-node Kubernetes cluster man
 - **2 Worker Nodes** (Symmetric application scheduling)
 - **Automated Load Balancing & NodePort Service routing**
 
+### Local Endpoints Matrix
+Once the bootstrap script completes, the following local endpoints become immediately available:
+- **Core Application:** `http://localhost/ready`, `http://localhost/health`, `http://localhost//version`(Exposes the FastAPI endpoints) 
+- **Grafana Dashboard:** `http://grafana.localhost/` (Pre-configured metrics visualization)
+- **ArgoCD UI:** Available via automated port-forwarding at `https://localhost:8080/`
+
 ## Tech Stack
 - **Backend:** Python (FastAPI + Uvicorn)
 - **Containerization:** Docker (Multi-stage production builds)
 - **Orchestration & Packaging:** Kubernetes + Helm v3
-- **Local Infrastructure:** Kind (Kubernetes in Docker)
+- **Ingress & Routing:** Nginx Ingress Controller
+- **GitOps Engine:** ArgoCD
+- **Observability:** Prometheus & Grafana (`kube-prometheus-stack`)
+- **Local Infrastructure & Automation:** Kind (Kubernetes in Docker) + Ansible
 
 ---
 
@@ -39,3 +48,5 @@ ansible-playbook infrastructure/local-setup/bootstrap.yaml
 2. Log Noise Reduction (Log Cleaning): The FastAPI gateway intercepts browser-automatic requests for /favicon.ico and explicitly returns a 204 No Content status (with include_in_schema=False). This mitigates 404 Not Found log pollution, preventing false-positive alerts in automated log parsers and SIEM systems.
 
 3. Decoupled Health Probes: By separating Liveness (/health) and Readiness (/ready) logic, the architecture prevents dangerous cascading restarts (CrashLoopBackOff chains) if downstream dependencies or third-party APIs experience transient latency.
+
+4. Zero-Sudo Local DNS Resolution: Uses the .localhost top-level domain convention (RFC 6761) for the Grafana Ingress routing. This allows multi-domain routing locally out-of-the-box without modifying the host's /etc/hosts file, ensuring the Ansible bootstrap playbook runs safely without requiring root (sudo) privileges.
