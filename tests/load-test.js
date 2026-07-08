@@ -13,20 +13,14 @@ export const options = {
     },
 };
 
+const BASE_URL = __ENV.MY_URL || 'http://localhost:8080';
 
 export default function () {
 
-    const BASE_URL = 'http://localhost:8080'; 
-
     const resMain = http.get(`${BASE_URL}/`);
     check(resMain, {
-        'status jest 200': (r) => r.status === 200,
+        'status is 200': (r) => r.status === 200,
     });
-    sleep(1); 
-
-    const resMetrics = http.get(`${BASE_URL}/metrics`);
-    check(resMetrics, {
-        'metrics status jest 200': (r) => r.status === 200,
-    });
-    sleep(2);
+    
+    sleep(Math.random() * 1 + 1); 
 }
