@@ -14,4 +14,4 @@ spec:
           service:
             name: observer-app-platform-service
             port:
-              number: 80 apiVersion: networking.k8s.io/v1
+              number: 80
