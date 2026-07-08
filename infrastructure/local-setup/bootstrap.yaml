@@ -103,30 +103,6 @@
       retries: 10
       delay: 15
 
-    # ── ArgoCD Reset ──────────────────────────────────
-    - name: Remove root application from ArgoCD (force delete)
-      ansible.builtin.command: "{{ local_bin }}/kubectl delete application root-application -n argocd --cascade=orphan"
-      failed_when: false # Ignoruj błąd, jeśli aplikacja już została usunięta
-      changed_when: true
-
-    - name: Remove monitoring application from ArgoCD (force delete)
-      ansible.builtin.command: "{{ local_bin }}/kubectl delete application monitoring-platform -n argocd --force --grace-period=0"
-      failed_when: false
-      changed_when: true
-
-    - name: Remove redis pods from ArgoCD (force delete)
-      ansible.builtin.command: "{{ local_bin }}/kubectl delete pods -l app.kubernetes.io/name=argocd-redis -n argocd"
-      failed_when: false
-      changed_when: true
-
-    - name: restart ArgoCD Application Controller to clear cache
-      ansible.builtin.command: "{{ local_bin }}/kubectl rollout restart statefulset argocd-application-controller -n argocd"
-      failed_when: false
-      changed_when: true
-
-    - name: Wait for ArgoCD Application Controller to be ready
-      ansible.builtin.pause:
-        seconds: 15
     # ── Grafana credentials ───────────────────────────────────────────────────
     - name: Create namespace monitoring
       ansible.builtin.command: "{{ local_bin }}/kubectl create namespace monitoring"
