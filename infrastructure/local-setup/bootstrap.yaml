@@ -11,7 +11,7 @@
       confirm: true
 
   vars:
-    argocd_version: "v2.13.3"
+    argocd_version: "v2.14.2"
     kubectl_version: "v1.31.0"
     kind_config: "{{ playbook_dir }}/kind-config.yaml"
     local_bin: "{{ ansible_env.HOME }}/.local/bin"
@@ -86,7 +86,7 @@
       retries: 10
       delay: 15
 
-    # ── Twardy Reset Zaciętego Cache ArgoCD ──────────────────────────────────
+    # ── ArgoCD Reset ──────────────────────────────────
     - name: Remove root application from ArgoCD (force delete)
       ansible.builtin.command: "{{ local_bin }}/kubectl delete application root-application -n argocd --cascade=orphan"
       failed_when: false # Ignoruj błąd, jeśli aplikacja już została usunięta
