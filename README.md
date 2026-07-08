@@ -15,7 +15,7 @@ In its MVP phase, the project utilizes a local multi-node Kubernetes cluster man
 ### Local Endpoints Matrix
 Once the bootstrap script completes, the following local endpoints become immediately available:
 - **Core Application:** `http://localhost/ready`, `http://localhost/health`, `http://localhost//version`(Exposes the FastAPI endpoints) 
-- **Grafana Dashboard:** `http://grafana.localhost/` (Pre-configured metrics visualization)
+- **Grafana Dashboard:** `http://localhost:3000/` 
 - **ArgoCD UI:** Available via automated port-forwarding at `https://localhost:8080/`
 
 ## Tech Stack
