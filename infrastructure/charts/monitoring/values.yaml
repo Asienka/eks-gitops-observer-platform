@@ -25,6 +25,10 @@ kube-prometheus-stack:
         enabled: true
         searchNamespace: ALL
 
+    service:
+      type: NodePort
+      nodePort: 32000
+
   alertmanager:
     enabled: false 
   kubeNodeExporter:
