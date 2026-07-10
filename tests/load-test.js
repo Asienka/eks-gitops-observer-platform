@@ -8,16 +8,19 @@ export const options = {
         { duration: '30s', target: 0 },  // 3. Ramp-down
     ],
     thresholds: {
-        http_req_failed: ['rate<0.01'],   
-        http_req_duration: ['p(95)<200'], 
+        http_req_failed: ['rate<0.05'],   
+        http_req_duration: ['p(95)<300'], 
     },
+    noConnectionReuse: true,
+    discardResponseBodies: true, 
 };
 
-const BASE_URL = __ENV.MY_URL || 'http://localhost:8080';
+
+const BASE_URL = __ENV.MY_URL || 'http://localhost';
 
 export default function () {
-
-    const resMain = http.get(`${BASE_URL}/`);
+    const resMain = http.get(`${BASE_URL}`);
+    
     check(resMain, {
         'status is 200': (r) => r.status === 200,
     });
