@@ -7,7 +7,7 @@ spec:
   selector:
     app: {{ .Chart.Name }}
   ports:
-    -name: http
+    - name: http
       protocol: TCP
       port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.targetPort }}
