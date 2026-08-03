@@ -3,7 +3,7 @@ kind: ServiceMonitor
 metadata:
   name: {{ .Release.Name }}-servicemonitor
   labels:
-    release: prometheus         
+    release: monitoring    
 spec:
   selector:
     matchLabels:
@@ -11,4 +11,4 @@ spec:
   endpoints:
   - port: http
     path: /metrics
-    interval: 10s
+    interval: 15s
