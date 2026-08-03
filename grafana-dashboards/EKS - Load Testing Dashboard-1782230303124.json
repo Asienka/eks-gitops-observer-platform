@@ -17,7 +17,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 30,
+  "id": null,
   "links": [],
   "panels": [
     {
@@ -331,8 +331,8 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(http_requests_total{namespace=\"$namespace\"}[2m])) by (status)",
-          "legendFormat": "Status: {{status}}",
+          "expr": "sum(rate(http_requests_total[2m])) by (handler, path) or sum(rate(http_request_duration_seconds_count[2m])) by (handler, path)",
+          "legendFormat": "Handler: {{handler}}{{path}}",
           "range": true,
           "refId": "A"
         }
@@ -429,7 +429,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(http_requests_total{namespace=\"$namespace\", status=~\"5..\"}[2m])) / sum(rate(http_requests_total{namespace=\"$namespace\"}[2m])) * 100",
+          "expr": "(sum(rate(http_requests_total{status_code=~\"5..\"}[2m])) or sum(rate(http_request_duration_seconds_count{status=~\"5..\"}[2m])) or vector(0)) / (sum(rate(http_requests_total[2m])) or sum(rate(http_request_duration_seconds_count[2m]))) * 100",
           "legendFormat": "Error Rate",
           "range": true,
           "refId": "A"
@@ -527,7 +527,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{namespace=\"$namespace\"}[2m])) by (le))",
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[2m])) by (le))",
           "legendFormat": "p95 Latency",
           "range": true,
           "refId": "A"
@@ -538,7 +538,7 @@
             "uid": "${datasource}"
           },
           "editorMode": "code",
-          "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{namespace=\"$namespace\"}[2m])) by (le))",
+          "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[2m])) by (le))",
           "legendFormat": "p99 Latency",
           "range": true,
           "refId": "B"
@@ -711,6 +711,6 @@
   "timezone": "",
   "title": "EKS - Load Testing Dashboard",
   "uid": "efq0muy1oos1sd",
-  "version": 1,
+  "version": 3,
   "weekStart": ""
 }
