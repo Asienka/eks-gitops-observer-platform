@@ -3,8 +3,8 @@ from fastapi import FastAPI, Response, status
 from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI(
-    title="EKS GitOps Observer API",
-    description="API for EKS GitOps Observer to provide health, readiness, version, and metrics endpoints.",
+    title="GitOps Observer API",
+    description="API for GitOps Observer to provide health, readiness, version, and metrics endpoints.",
     version="1.0.0"
 )
 instrumentator = Instrumentator()

@@ -16,7 +16,7 @@ export const options = {
 };
 
 
-const BASE_URL = __ENV.MY_URL || 'http://localhost';
+const BASE_URL = __ENV.MY_URL || 'http://localhost/ready';
 
 export default function () {
     const resMain = http.get(`${BASE_URL}`);

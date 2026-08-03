@@ -1,0 +1,14 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ .Release.Name }}-servicemonitor
+  labels:
+    release: monitoring    
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }} 
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 15s
