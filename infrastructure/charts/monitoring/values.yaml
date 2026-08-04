@@ -31,5 +31,5 @@ kube-prometheus-stack:
 
   alertmanager:
     enabled: false 
-  kubeNodeExporter:
+  nodeExporter:
     enabled: true 
