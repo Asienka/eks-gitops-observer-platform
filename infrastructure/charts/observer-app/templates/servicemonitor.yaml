@@ -3,8 +3,13 @@ kind: ServiceMonitor
 metadata:
   name: {{ .Release.Name }}-servicemonitor
   labels:
-    release: monitoring    
+    app: {{ .Chart.Name }}
+    release: {{ .Release.Name }}  
+  namespace: monitoring
 spec:
+  namespaceSelector:
+    matchNames:
+    - default
   selector:
     matchLabels:
       app: {{ .Chart.Name }} 
