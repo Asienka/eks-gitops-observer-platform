@@ -193,7 +193,7 @@ These are the decisions that aren't obvious from a quick scan. If something in t
 | Nginx Ingress with rate limit + internal whitelist | ✅ |
 | Idempotent, secret-safe Ansible bootstrap | ✅ |
 | k6 load test with SLO thresholds | ✅ |
-| ServiceMonitor for the FastAPI app | 🟡 PR open |
+| ServiceMonitor for the FastAPI app | ✅ |
 | Loki for log aggregation | ⏳ Next up |
 | Jaeger for distributed tracing | ⏳ After Loki |
 | Three Pillars dashboard in Grafana | ⏳ After both |
