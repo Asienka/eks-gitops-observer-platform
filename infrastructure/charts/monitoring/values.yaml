@@ -53,6 +53,8 @@ kube-prometheus-stack:
 loki-stack:
   loki:
     enabled: true
+    podSecurityPolicy:
+      enabled: false
     persistence:
       enabled: false
     resources:
