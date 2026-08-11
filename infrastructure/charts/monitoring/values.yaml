@@ -66,6 +66,13 @@ loki:
 
   storage:
     type: filesystem
+    bucketNames:
+      chunks: ""
+      ruler: ""
+      admin: ""
+    filesystem:
+      chunks_directory: /tmp/loki/chunks
+      rules_directory: /tmp/loki/rules
 
   ruler:
     enable_api: true
