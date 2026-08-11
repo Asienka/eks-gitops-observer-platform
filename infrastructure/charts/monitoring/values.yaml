@@ -65,6 +65,8 @@ loki-stack:
 
   promtail:
     enabled: true
+    podSecurityPolicy:
+      enabled: false
     resources:
       requests:
         memory: 100Mi
