@@ -33,14 +33,14 @@ kube-prometheus-stack:
       - name: Loki
         type: loki
         access: proxy
-        url: http://monitoring-loki.monitoring.svc.cluster.local:3100
+        url: http://monitoring-platform-loki.monitoring.svc.cluster.local:3100
         jsonData:
           maxLines: 1000
       
       - name: Jaeger
         type: jaeger
         access: proxy
-        url: http://monitoring-jaeger-query.monitoring.svc.cluster.local:16686
+        url: http://monitoring-platform-jaeger-query.monitoring.svc.cluster.local:16686
         jsonData:
           tracesToLogs:
             datasourceUid: Loki
@@ -85,6 +85,11 @@ loki:
   indexGateway:
     replicas: 0
 
+  chunksCache:
+    enabled: false
+  resultsCache:
+    enabled: false
+
   loki:
     auth_enabled: false
     commonConfig:
@@ -119,7 +124,7 @@ promtail:
   enabled: true
   config:
     clients:
-      - url: http://monitoring-loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
+      - url: http://monitoring-platform-loki.monitoring.svc.cluster.local:3100/loki/api/v1/push
   resources:
     requests:
       memory: 100Mi
